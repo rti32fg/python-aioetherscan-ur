@@ -6,6 +6,15 @@
 # Maintainer: Pellegrino Prevete (tallero) <pellegrinoprevete@gmail.com>
 
 _py="python"
+_pyver="$( \
+  "${_py}" \
+    -V | \
+    awk \
+      '{print $2}')"
+_pymajver="${_pyver%.*}"
+_pyminver="${_pymajver#*.}"
+_pynextver="${_pymajver%.*}.$(( \
+  ${_pyminver} + 1))"
 _pkg="aioetherscan"
 pkgbase="${_py}-${_pkg}"
 pkgname=(
@@ -29,17 +38,21 @@ license=(
   'MIT'
 )
 depends=(
+  "${_py}>=${_pymajver}"
+  "${_py}<${_pynextver}"
   "${_py}>=3.9"
   "${_py}-aiohttp>=3.4"
   "${_py}-asyncio-throttle>=1.0.1"
   "${_py}-aiohttp-retry>=2.8.3"
 )
 makedepends=(
+  "cython"
   "${_py}-build"
   "${_py}-installer"
   "${_py}-poetry"
   "${_py}-poetry-core"
   "${_py}-wheel"
+  "${_py}-setuptools"
 )
 checkdepends=(
   "${_py}-pytest>=8.2.2"
@@ -53,7 +66,6 @@ conflicts=(
 )
 source=(
   "${_pkg}-${_commit}::${url}/archive/${_commit}.zip"
-  # Release tarball - never released one
   # "${url}/archive/v${pkgver}/${_pkg}-${pkgver}.tar.gz"
 )
 sha256sum=(
@@ -68,11 +80,6 @@ build() {
     "${_pkg}-${_commit}"
   poetry \
     build
-  # python \
-  #   -m \
-  #     build \
-  #   --wheel \
-  #   --no-isolation
 }
 
 package() {
