@@ -61,6 +61,7 @@ checkdepends=(
 )
 provides=(
   "${_pkg}=${pkgver}"
+  "${_py}-eip3091=${pkgver}"
 )
 conflicts=(
   "${_pkg}"
