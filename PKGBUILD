@@ -5,6 +5,8 @@
 # Maintainer: Truocolo <truocolo@aol.com>
 # Maintainer: Pellegrino Prevete (tallero) <pellegrinoprevete@gmail.com>
 
+_setuptools="true"
+_poetry="false"
 _py="python"
 _pyver="$( \
   "${_py}" \
@@ -20,8 +22,8 @@ pkgbase="${_py}-${_pkg}"
 pkgname=(
   "${pkgbase}"
 )
-pkgver=0.9.6
-_commit="79cdaa85fda278f2abbe82132eacf93df572d6f0"
+pkgver=0.9.6.1
+_commit="23dbbba312f7938b2d6250af4da4d9b7276788f1"
 pkgrel=1
 _pkgdesc=(
   'Etherscan API async Python wrapper.'
@@ -56,13 +58,17 @@ depends=(
 )
 makedepends=(
   "cython"
-  "${_py}-build"
-  "${_py}-installer"
-  "${_py}-poetry"
-  "${_py}-poetry-core"
   "${_py}-wheel"
   "${_py}-setuptools"
 )
+if [[ "${_poetry}" == "true" ]]; then
+  makedepends+=(
+    "${_py}-build"
+    "${_py}-installer"
+    "${_py}-poetry"
+    "${_py}-poetry-core"
+  )
+fi
 checkdepends=(
   "${_py}-pytest>=8.2.2"
   "${_py}-pytest-asyncio>=0.23.7"
@@ -79,36 +85,62 @@ source=(
   "${_pkg}-${_commit}.zip::${url}/archive/${_commit}.zip"
   # "${url}/archive/v${pkgver}/${_pkg}-${pkgver}.tar.gz"
 )
-sha256sum=(
-  '51c2f03acb880bf59ee8d58990e277f7b4c0489fb995cb1fe04c82133e6358c8'
+sha256sums=(
+  '7a55511d466126a07ac33ac26b6fd3c82bef9ff5016d48dbb66d6522e9e0d489'
 )
 b2sums=(
-  'b21d490de9dafbd6154d35ae79993e4517d3308b433feef0fc5473e1d6646a6a1f022495c1f2527df531d54ed058c6a0519f15b5157994c231e15b4d47c0bdcc'
+  'd9076f256ee36cc9a5e06e27c19c032694aca8dee834f86e42f9af2098e1847c5b9df548bb6103db2ae8f4c2e4d92a8b17fa3ec668607134a0f40d85de3825a3'
 )
 
-build() {
-  cd \
-    "${_pkg}-${_commit}"
+_poetry_build() {
   export \
+    POETRY_VIRTUALENVS_CREATE=false \
+    POETRY_VIRTUALENVS_OPTIONS_NO_PIP=true \
     POETRY_VIRTUALENVS_OPTIONS_SYSTEM_SITE_PACKAGES=true
+  POETRY_VIRTUALENVS_CREATE=false \
+  POETRY_VIRTUALENVS_OPTIONS_NO_PIP=true \
   POETRY_VIRTUALENVS_OPTIONS_SYSTEM_SITE_PACKAGES=true \
   poetry \
     -vvv \
     build
 }
 
-package() {
+build() {
   cd \
     "${_pkg}-${_commit}"
+  if [[ "${_poetry}" == "true" ]]; then
+    _poetry_build
+  fi
+}
+
+_setuptools_package() {
+  "${_py}" \
+    setup.py \
+    install \
+    --root="${pkgdir}" \
+    --optimize=1
+}
+
+_installer_package() {
   "${_py}" \
     -m \
       installer \
       --destdir="${pkgdir}" \
       dist/*.whl
+}
+
+package() {
+  cd \
+    "${_pkg}-${_commit}"
+  if [[ "${_setuptools}" == "true" ]]; then
+    _setuptools_package
+  elif [[ "${_poetry}" == "true" ]]; then
+    _installer_package
+  fi
   install \
     -Dm644 \
     LICENSE \
-    "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+    "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
 
 # vim:set sw=2 sts=-1 et:
