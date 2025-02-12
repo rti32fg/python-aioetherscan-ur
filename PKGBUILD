@@ -24,6 +24,16 @@
 # Maintainer: Pellegrino Prevete (dvorak) <pellegrinoprevete@gmail.com>
 # Maintainer: Pellegrino Prevete (dvorak) <dvorak@0x87003Bd6C074C713783df04f36517451fF34CBEf>
 
+_evmfs_available="$( \
+  command \
+    -v \
+    "evmfs" || \
+    true)"
+if [[ "${_evmfs_available}" != "" ]]; then
+  _evmfs="true"
+elif [[ "${_evmfs_available}" == "" ]]; then
+  _evmfs="false"
+fi
 _setuptools="true"
 _poetry="false"
 _py="python"
@@ -100,15 +110,43 @@ conflicts=(
   "${_pkg}"
   "${_py}-eip3091"
 )
+_tag="${_commit}"
+_tarname="${_pkg}-${_tag}"
+_evmfs_network="100"
+_evmfs_address="0x69470b18f8b8b5f92b48f6199dcb147b4be96571"
+_evmfs_ns="0x87003Bd6C074C713783df04f36517451fF34CBEf"
+_archive_sum='7a55511d466126a07ac33ac26b6fd3c82bef9ff5016d48dbb66d6522e9e0d489'
+_evmfs_archive_uri="evmfs://${_evmfs_network}/${_evmfs_address}/${_evmfs_ns}/${_archive_sum}"
+_evmfs_archive_src="${_tarname}.zip::${_evmfs_archive_uri}"
+_archive_sig_sum="1b77bbebc4e78b4a72891c0f4b56e66d115bcdf6c07484707d7f827a4c2c8443"
+_archive_sig_uri="evmfs://${_evmfs_network}/${_evmfs_address}/${_evmfs_ns}/${_archive_sig_sum}"
+_archive_sig_src="${_tarname}.zip.sig::${_archive_sig_uri}"
+if [[ "${_evmfs}" == true ]]; then
+  makedepends+=(
+    "evmfs"
+  )
+  _src="${_evmfs_archive_src}"
+  source+=(
+    "${_archive_sig_src}"
+  )
+  sha256sums+=(
+    "${_archive_sig_sum}"
+  )
+elif [[ "${_evmfs}" == true ]]; then
+  _src="${_tarname}.zip::${url}/archive/${_commit}.zip"
+fi
 source=(
-  "${_pkg}-${_commit}.zip::${url}/archive/${_commit}.zip"
-  # "${url}/archive/v${pkgver}/${_pkg}-${pkgver}.tar.gz"
+  "${_src}"
 )
 sha256sums=(
-  '7a55511d466126a07ac33ac26b6fd3c82bef9ff5016d48dbb66d6522e9e0d489'
+  "${_archive_sum}"
 )
 b2sums=(
   'd9076f256ee36cc9a5e06e27c19c032694aca8dee834f86e42f9af2098e1847c5b9df548bb6103db2ae8f4c2e4d92a8b17fa3ec668607134a0f40d85de3825a3'
+)
+validpgpkeys=(
+  # Pellegrino Prevete (dvorak) <dvorak@0x87003Bd6C074C713783df04f36517451fF34CBEf>
+  '12D8E3D7888F741E89F86EE0FEC8567A644F1D16'
 )
 
 _poetry_build() {
@@ -126,7 +164,7 @@ _poetry_build() {
 
 build() {
   cd \
-    "${_pkg}-${_commit}"
+    "${_tarname}"
   if [[ "${_poetry}" == "true" ]]; then
     _poetry_build
   fi
@@ -150,7 +188,7 @@ _installer_package() {
 
 package() {
   cd \
-    "${_pkg}-${_commit}"
+    "${_tarname}"
   if [[ "${_setuptools}" == "true" ]]; then
     _setuptools_package
   elif [[ "${_poetry}" == "true" ]]; then
