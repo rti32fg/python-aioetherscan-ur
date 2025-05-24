@@ -153,7 +153,8 @@ b2sums=(
   'd9076f256ee36cc9a5e06e27c19c032694aca8dee834f86e42f9af2098e1847c5b9df548bb6103db2ae8f4c2e4d92a8b17fa3ec668607134a0f40d85de3825a3'
 )
 validpgpkeys=(
-  # Pellegrino Prevete (dvorak) <dvorak@0x87003Bd6C074C713783df04f36517451fF34CBEf>
+  # Pellegrino Prevete (dvorak)
+  #   <dvorak@0x87003Bd6C074C713783df04f36517451fF34CBEf>
   '12D8E3D7888F741E89F86EE0FEC8567A644F1D16'
 )
 
