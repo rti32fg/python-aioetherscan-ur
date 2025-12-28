@@ -42,6 +42,11 @@ fi
 _os="$(
   uname \
     -o)"
+if [[ "${_os}" == "Android" ]]; then
+  _c_compiler="clang"
+elif [[ "${_os}" == "GNU/Linux" ]]; then
+  _c_compiler="gcc"
+fi
 if [[ ! -v "_git" ]]; then
   _git="false"
 fi
@@ -131,6 +136,7 @@ depends+=(
 )
 makedepends=(
   "cython"
+  "${_c_compiler}"
   "${_py}"
   "${_py}-wheel"
   "${_py}-setuptools"
