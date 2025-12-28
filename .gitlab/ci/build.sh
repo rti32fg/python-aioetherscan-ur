@@ -200,7 +200,7 @@ _requirements() {
     "${_commit}"
   mv \
     "${HOME}/${_name}-${_commit}.tar.gz" \
-    "/home/user/${_pkgname}"
+    "/home/user/${_pkgname}/${_pkgname}-${_commit}.tar.gz"
 }
 
 _build() {
@@ -258,7 +258,7 @@ _build() {
     in "${_home}/${_pkgname}/"*".pkg.tar."*; do
     mv \
       "${_file}" \
-      "dogeos-gnu-$( \
+      "dogeos-gnu-$(
         basename \
           "${_file}")"
   done
