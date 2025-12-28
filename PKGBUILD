@@ -87,7 +87,7 @@ pkgname=(
 )
 pkgver=0.9.6.1
 _commit="23dbbba312f7938b2d6250af4da4d9b7276788f1"
-pkgrel=5
+pkgrel=6
 _pkgdesc=(
   'Etherscan API async Python wrapper.'
 )
